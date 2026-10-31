@@ -1,0 +1,76 @@
+
+import numpy as np
+
+
+class Predator:
+    def __init__(self, x, y):
+        self.x = float(x)
+        self.y = float(y)
+
+        self.energy = 120.0
+        self.speed = 1.5
+        self.vision_radius = 12
+
+        self.alive = True
+        self.age = 0
+
+    def perceive(self, organisms):
+        visible = []
+
+        for prey in organisms:
+            if not prey.alive:
+                continue
+
+            distance = np.hypot(
+                prey.x - self.x,
+                prey.y - self.y
+            )
+
+            if distance <= self.vision_radius:
+                visible.append((distance, prey))
+
+        return visible
+
+    def decide(self, visible):
+        if not visible:
+            return np.random.uniform(-1, 1, 2)
+
+        _, target = min(visible, key=lambda item: item[0])
+
+        direction = np.array([
+            target.x - self.x,
+            target.y - self.y
+        ])
+
+        magnitude = np.linalg.norm(direction)
+
+        return direction / magnitude if magnitude > 0 else direction
+
+    def act(self, direction, organisms):
+        self.x += direction[0] * self.speed
+        self.y += direction[1] * self.speed
+
+        self.energy -= 1.5
+        self.age += 1
+
+        for prey in organisms:
+            if not prey.alive:
+                continue
+
+            distance = np.hypot(
+                prey.x - self.x,
+                prey.y - self.y
+            )
+
+            if distance < 2:
+                prey.alive = False
+                self.energy += 40
+                break
+
+        if self.energy <= 0:
+            self.alive = False
+
+    def step(self, organisms):
+        visible = self.perceive(organisms)
+        direction = self.decide(visible)
+        self.act(direction, organisms)
