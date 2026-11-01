@@ -1,6 +1,7 @@
 import csv
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd
 from experiments.runner import run_experiment
 
 experiments = {
@@ -10,6 +11,8 @@ experiments = {
 }
 
 results = {}
+raw_results = []
+
 
 for name, rate in experiments.items():
     print(f"Running {name}...")
@@ -25,6 +28,12 @@ for name, rate in experiments.items():
 
         if history:
             runs.append(history[-1])
+            raw_results.append({
+                "strategy": name,
+                "mutation_rate": rate,
+                "seed": seed,
+                **history[-1]
+            })
 
     if not runs:
         print(f"{name}: No surviving organisms!")
@@ -110,3 +119,10 @@ with open("experiment_results.csv", "w", newline="") as file:
             ])
 
 print("\nResults saved to experiment_results.csv")
+
+pd.DataFrame(raw_results).to_csv(
+    "experiment_runs.csv",
+    index=False
+)
+
+print("Individual runs saved to experiment_runs.csv")
