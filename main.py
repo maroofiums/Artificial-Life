@@ -5,6 +5,7 @@ from agents.organism import Organism
 from core.environment import Environment
 from experiments.evolution import EvaluationTrack
 from visualization.dashboard import plot_evolution
+from experiments.validation import validate_population   
 
 def main() -> None:
     environment = Environment()
@@ -41,6 +42,9 @@ def main() -> None:
 
         if (step + 1) % 10 == 0:
             print("Evolution:", tracker.summary())
+
+
+    validate_population(tracker.history)
 
     plot_evolution(tracker.history)
 

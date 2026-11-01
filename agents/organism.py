@@ -16,6 +16,8 @@ class Organism:
 
         self.brain: NeuralBrain | None = brain if brain is not None else None
 
+        self.generation = 1
+
     def perceive(
         self, environment: Environment
     ) -> np.ndarray[tuple[int, int], np.dtype[np.float64]]:

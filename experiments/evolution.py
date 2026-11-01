@@ -20,6 +20,10 @@ class EvaluationTrack:
             "average_fitness": sum(fitness) / len(fitness),
             "max_fitness": max(fitness),
             "average_age": sum(org.age for org in organisms) / len(organisms),
+            "max_generation": max(org.generation for org in organisms),
+            "average_generation": sum(
+                org.generation for org in organisms
+            ) / len(organisms),
         }
 
         self.history.append(result)
