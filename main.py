@@ -26,7 +26,19 @@ def main() -> None:
             if organism.alive:
                 organism.step(environment)
 
-        prey = [organism for organism in prey if organism.alive]
+        prey = [
+            organism for organism in prey 
+            if organism.alive
+        ]
+
+        prey.sort(
+            key=lambda organism: organism.calculate_fitness(),
+            reverse=True
+        )
+
+        MAX_POPULATION = 100
+
+        prey = prey[:MAX_POPULATION]
 
         newborns = []
 

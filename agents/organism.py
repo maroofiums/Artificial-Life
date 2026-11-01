@@ -91,7 +91,10 @@ class Organism:
 
         self.energy -= 60
 
-        child_brain = self.brain.clone_mutated()
+        child_brain = self.brain.clone_mutated(
+            mutation_rate=0.1,
+            mutation_scale=0.1
+        )
 
         child = Organism(
             x = self.x,
@@ -100,5 +103,9 @@ class Organism:
         )
 
         child.energy = 60
+        child.generation = self.generation + 1
 
         return child
+
+    def calculate_fitness(self) -> float:
+        return self.age + self.energy
