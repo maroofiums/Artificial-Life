@@ -1,3 +1,5 @@
+import csv
+import numpy as np
 import matplotlib.pyplot as plt
 from experiments.runner import run_experiment
 
@@ -12,14 +14,36 @@ results = {}
 for name, rate in experiments.items():
     print(f"Running {name}...")
 
-    history = run_experiment(rate, seed=42, steps=500)
+    runs = []
 
-    if not history:
+    for seed in range(5):
+        history = run_experiment(
+            rate,
+            seed=seed,
+            steps=500,
+        )
+
+        if history:
+            runs.append(history[-1])
+
+    if not runs:
         print(f"{name}: No surviving organisms!")
         continue
 
-    results[name] = history[-1]
+    metrics = [
+        "population",
+        "average_fitness",
+        "average_age",
+        "max_generation",
+    ]
 
+    results[name] = {}
+
+    for key in metrics:
+        values = [run[key] for run in runs]
+
+        results[name][key] = np.mean(values)
+        results[name][key + "_std"] = np.std(values, ddof=1)
 # Comparison dashboard
 if results:
     names = list(results.keys())
@@ -35,8 +59,9 @@ if results:
 
     for ax, (key, title) in zip(axes.flat, metrics):
         values = [results[name][key] for name in names]
+        errors = [results[name][key + "_std"] for name in names]
 
-        ax.bar(names, values)
+        ax.bar(names, values, yerr=errors, capsize=5)
         ax.set_title(title)
         ax.set_ylabel(title)
         ax.tick_params(axis="x", rotation=15)
@@ -47,9 +72,41 @@ if results:
     plt.show()
 
     for name, result in results.items():
-        print(
-            f"{name}: Population={result['population']}, "
-            f"Fitness={result['average_fitness']:.2f}, "
-            f"Age={result['average_age']:.2f}, "
-            f"Generation={result['max_generation']}"
-        )
+        print(f"\n{name}")
+
+        for key in [
+            "population",
+            "average_fitness",
+            "average_age",
+            "max_generation",
+        ]:
+            mean = result[key]
+            std = result[key + "_std"]
+
+            print(f"{key}: {mean:.2f} ± {std:.2f}")
+
+with open("experiment_results.csv", "w", newline="") as file:
+    writer = csv.writer(file)
+
+    writer.writerow([
+        "Strategy",
+        "Metric",
+        "Mean",
+        "Standard Deviation"
+    ])
+
+    for name, result in results.items():
+        for key in [
+            "population",
+            "average_fitness",
+            "average_age",
+            "max_generation"
+        ]:
+            writer.writerow([
+                name,
+                key,
+                result[key],
+                result[key + "_std"]
+            ])
+
+print("\nResults saved to experiment_results.csv")

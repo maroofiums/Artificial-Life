@@ -1,0 +1,13 @@
+Strategy,Metric,Mean,Standard Deviation
+Baseline,population,84.6,24.449948875202175
+Baseline,average_fitness,381.00619817804153,46.04089715480239
+Baseline,average_age,300.52542462600695,42.05077084300262
+Baseline,max_generation,10.0,3.8078865529319543
+Low Mutation,population,82.4,39.354796403996296
+Low Mutation,average_fitness,328.26401084962504,98.79575820461223
+Low Mutation,average_age,243.68133333333336,116.04675297290984
+Low Mutation,max_generation,8.8,4.8166378315169185
+High Mutation,population,100.0,0.0
+High Mutation,average_fitness,301.1435033085112,64.97830352104643
+High Mutation,average_age,210.98000000000002,69.48878434682824
+High Mutation,max_generation,8.6,2.4083189157584592
