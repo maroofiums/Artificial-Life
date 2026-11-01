@@ -11,7 +11,7 @@ from experiments.validation import validate_population
 MAX_POPULATION = 100
 SIMULATION_STEPS = 500
 PREDATOR_COUNT = 3
-
+MUTATION_RATE = 0.1
 
 def main() -> None:
     environment = Environment()
@@ -43,7 +43,7 @@ def main() -> None:
 
         for organism in prey:
             if organism.alive:
-                child = organism.reproduce()
+                child = organism.reproduce(mutation_rate=MUTATION_RATE)
 
                 if child is not None:
                     newborns.append(child)
@@ -59,7 +59,7 @@ def main() -> None:
             key=lambda organism: organism.calculate_fitness(),
             reverse=True,
         )
-        prey = prey[:MAX_POPULATION]
+        # prey = prey[:MAX_POPULATION]
 
         for predator in predators:
             if predator.alive:

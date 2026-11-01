@@ -14,9 +14,10 @@ class Organism:
         self.vision_radius: int = 5
         self.speed: float = 1.0
 
-        self.brain: NeuralBrain | None = brain if brain is not None else None
-
-        self.generation = 1
+        self.brain: NeuralBrain | None = (
+            brain if brain is not None else NeuralBrain()
+        )        
+        self.generation: int = 1
 
     def perceive(
         self, environment: Environment
@@ -30,27 +31,8 @@ class Organism:
     def decide(
         self, observation: np.ndarray[tuple[int, int], np.dtype[np.float64]]
     ) -> np.ndarray[tuple[int], np.dtype[np.float64]]:
-        if observation.max() <= 0.05:
-            return np.random.uniform(-1, 1, 2)
 
-        target_y, target_x = np.unravel_index(
-            np.argmax(observation),
-            observation.shape
-        )
-
-        center = self.vision_radius
-
-        direction = np.array([
-            target_x - center,
-            target_y - center
-        ], dtype=float)
-
-        magnitude = np.linalg.norm(direction)
-
-        if magnitude > 0:
-            direction /= magnitude
-
-        return direction
+        return self.brain.forward(observation, self.energy)
 
     def act(
         self,
@@ -73,7 +55,7 @@ class Organism:
           )
 
         self.energy += consumed * 50
-        self.energy -= 1.0
+        self.energy -= 0.5
 
         self.age += 1
 
@@ -85,14 +67,14 @@ class Organism:
         direction = self.decide(observation)
         self.act(direction, environment)
 
-    def reproduce(self) -> Organism | None:
+    def reproduce(self, mutation_rate: float = 0.1) -> Organism | None:
         if self.energy < 150:
             return None
 
         self.energy -= 60
 
         child_brain = self.brain.clone_mutated(
-            mutation_rate=0.1,
+            mutation_rate=mutation_rate,
             mutation_scale=0.1
         )
 

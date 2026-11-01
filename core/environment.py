@@ -16,7 +16,7 @@ class Environment:
 
     def regenerate_food(self) -> None:
         growth = np.random.uniform(
-            0, 0.01, self.food.shape
+            0, 0.03, self.food.shape
         )
 
         self.food = np.clip(
@@ -27,10 +27,10 @@ class Environment:
         self, x: int, y: int, radius: int = 5
     ) -> np.ndarray[tuple[int, int], np.dtype[np.float64]]:
         x_min = max(0, x - radius)
-        x_max = max(self.width, x + radius + 1)
+        x_max = min(self.width, x + radius + 1)
 
         y_min = max(0, y - radius)
-        y_max = max(self.height, y + radius + 1)
+        y_max = min(self.height, y + radius + 1)
 
         return self.food[y_min:y_max, x_min:x_max]
 
