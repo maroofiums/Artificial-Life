@@ -2,10 +2,16 @@ import numpy as np
 
 from agents.brain import NeuralBrain
 from agents.organism import Organism
+from agents.predator import Predator
 from core.environment import Environment
 from experiments.evolution import EvaluationTrack
 from visualization.dashboard import plot_evolution
-from experiments.validation import validate_population   
+from experiments.validation import validate_population
+
+MAX_POPULATION = 100
+SIMULATION_STEPS = 500
+PREDATOR_COUNT = 3
+
 
 def main() -> None:
     environment = Environment()
@@ -17,44 +23,66 @@ def main() -> None:
         )
         for _ in range(20)
     ]
+    predators = [
+        Predator(
+            x=int(np.random.randint(0, environment.width)),
+            y=int(np.random.randint(0, environment.height)),
+        )
+        for _ in range(PREDATOR_COUNT)
+    ]
     tracker = EvaluationTrack()
 
-    for step in range(100):
+    for step in range(SIMULATION_STEPS):
         environment.regenerate_food()
 
         for organism in prey:
             if organism.alive:
                 organism.step(environment)
 
+        newborns = []
+
+        for organism in prey:
+            if organism.alive:
+                child = organism.reproduce()
+
+                if child is not None:
+                    newborns.append(child)
+
+        prey.extend(newborns)
+
         prey = [
-            organism for organism in prey 
-            if organism.alive
+            organism for organism in prey
+            if organism.alive and organism.energy > 0
         ]
 
         prey.sort(
             key=lambda organism: organism.calculate_fitness(),
-            reverse=True
+            reverse=True,
         )
-
-        MAX_POPULATION = 100
-
         prey = prey[:MAX_POPULATION]
 
-        newborns = []
+        for predator in predators:
+            if predator.alive:
+                predator.step(prey)
 
-        for organism in prey:
-            child = organism.reproduce()
-
-            if child is not None:
-                newborns.append(child)
-
-        prey.extend(newborns)
+        predators = [predator for predator in predators if predator.alive]
+        prey = [
+            organism for organism in prey
+            if organism.alive and organism.energy > 0
+        ]
 
         tracker.record(prey, step + 1)
 
-        if (step + 1) % 10 == 0:
-            print("Evolution:", tracker.summary())
-
+        if (step + 1) % 50 == 0:
+            max_generation = max(
+                (organism.generation for organism in prey),
+                default=0,
+            )
+            print(
+                f"Step: {step + 1} | "
+                f"Population: {len(prey)} | "
+                f"Generation: {max_generation}"
+            )
 
     validate_population(tracker.history)
 

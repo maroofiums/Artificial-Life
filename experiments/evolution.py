@@ -8,22 +8,25 @@ class EvaluationTrack:
 
 
     def record(self, organisms: list[Organism], step: int) -> None:
-        if not organisms:
-            return
-    
         fitness = [org.age + org.energy for org in organisms]
-
 
         result = {
             "step": step,
             "population": len(organisms),
-            "average_fitness": sum(fitness) / len(fitness),
-            "max_fitness": max(fitness),
-            "average_age": sum(org.age for org in organisms) / len(organisms),
-            "max_generation": max(org.generation for org in organisms),
-            "average_generation": sum(
-                org.generation for org in organisms
-            ) / len(organisms),
+            "average_fitness": sum(fitness) / len(organisms) if organisms else 0.0,
+            "max_fitness": max(fitness, default=0.0),
+            "average_age": (
+                sum(org.age for org in organisms) / len(organisms)
+                if organisms else 0.0
+            ),
+            "max_generation": max(
+                (org.generation for org in organisms),
+                default=0,
+            ),
+            "average_generation": (
+                sum(org.generation for org in organisms) / len(organisms)
+                if organisms else 0.0
+            ),
         }
 
         self.history.append(result)
