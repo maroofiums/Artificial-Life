@@ -22,4 +22,4 @@ def validate_population(history):
     if last["average_age"] > first["average_age"]:
         print("Survival duration increased.")
     else:
-        print("No survival improvement detected.")
+        print("No survival improvement detected.")  
