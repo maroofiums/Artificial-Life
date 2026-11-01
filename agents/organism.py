@@ -1,19 +1,20 @@
 import numpy as np
 
 from core.environment import Environment
-
-
+from agents.brain import NeuralBrain
 class Organism:
-    def __init__(self, x: int, y: int) -> None:
-        self.x = float(x)
-        self.y = float(y)
+    def __init__(self, x: int, y: int, brain: NeuralBrain=None) -> None:
+        self.x: float = float(x)
+        self.y: float = float(y)
 
-        self.energy = 100.0
-        self.age = 0
-        self.alive = True
+        self.energy: float = 100.0
+        self.age: int = 0
+        self.alive: bool = True
 
-        self.vision_radius = 5
-        self.speed = 1.0
+        self.vision_radius: int = 5
+        self.speed: float = 1.0
+
+        self.brain: NeuralBrain | None = brain if brain is not None else None
 
     def perceive(
         self, environment: Environment
@@ -81,3 +82,21 @@ class Organism:
         observation = self.perceive(environment)
         direction = self.decide(observation)
         self.act(direction, environment)
+
+    def reproduce(self) -> Organism | None:
+        if self.energy < 150:
+            return None
+
+        self.energy -= 60
+
+        child_brain = self.brain.clone_mutated()
+
+        child = Organism(
+            x = self.x,
+            y = self.y,
+            brain = child_brain
+        )
+
+        child.energy = 60
+
+        return child

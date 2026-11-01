@@ -6,15 +6,15 @@ from agents.organism import Organism
 
 class Predator:
     def __init__(self, x: int, y: int) -> None:
-        self.x = float(x)
-        self.y = float(y)
+        self.x: float = float(x)
+        self.y: float = float(y)
 
-        self.energy = 120.0
-        self.speed = 1.5
-        self.vision_radius = 12
+        self.energy: float = 120.0
+        self.speed: float = 1.5
+        self.vision_radius: int = 12
 
-        self.alive = True
-        self.age = 0
+        self.alive: bool = True
+        self.age: int = 0
 
     def perceive(
         self, organisms: list[Organism]
