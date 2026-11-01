@@ -1,9 +1,10 @@
-
 import numpy as np
+
+from core.environment import Environment
 
 
 class Organism:
-    def __init__(self, x, y):
+    def __init__(self, x: int, y: int) -> None:
         self.x = float(x)
         self.y = float(y)
 
@@ -14,14 +15,18 @@ class Organism:
         self.vision_radius = 5
         self.speed = 1.0
 
-    def perceive(self, environment):
+    def perceive(
+        self, environment: Environment
+    ) -> np.ndarray[tuple[int, int], np.dtype[np.float64]]:
         return environment.observe(
             int(self.x),
             int(self.y),
             self.vision_radius
         )
 
-    def decide(self, observation):
+    def decide(
+        self, observation: np.ndarray[tuple[int, int], np.dtype[np.float64]]
+    ) -> np.ndarray[tuple[int], np.dtype[np.float64]]:
         if observation.max() <= 0.05:
             return np.random.uniform(-1, 1, 2)
 
@@ -44,7 +49,11 @@ class Organism:
 
         return direction
 
-    def act(self, direction, environment):
+    def act(
+        self,
+        direction: np.ndarray[tuple[int], np.dtype[np.float64]],
+        environment: Environment,
+    ) -> None:
         self.x = np.clip(
             self.x + direction[0] * self.speed,
             0, environment.width - 1
@@ -68,7 +77,7 @@ class Organism:
         if self.energy <= 0:
             self.alive = False
 
-    def step(self, environment):
+    def step(self, environment: Environment) -> None:
         observation = self.perceive(environment)
         direction = self.decide(observation)
         self.act(direction, environment)

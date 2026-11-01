@@ -1,9 +1,11 @@
 
 import numpy as np
 
+from agents.organism import Organism
+
 
 class Predator:
-    def __init__(self, x, y):
+    def __init__(self, x: int, y: int) -> None:
         self.x = float(x)
         self.y = float(y)
 
@@ -14,7 +16,9 @@ class Predator:
         self.alive = True
         self.age = 0
 
-    def perceive(self, organisms):
+    def perceive(
+        self, organisms: list[Organism]
+    ) -> list[tuple[float, Organism]]:
         visible = []
 
         for prey in organisms:
@@ -31,7 +35,9 @@ class Predator:
 
         return visible
 
-    def decide(self, visible):
+    def decide(
+        self, visible: list[tuple[float, Organism]]
+    ) -> np.ndarray[tuple[int], np.dtype[np.float64]]:
         if not visible:
             return np.random.uniform(-1, 1, 2)
 
@@ -46,7 +52,11 @@ class Predator:
 
         return direction / magnitude if magnitude > 0 else direction
 
-    def act(self, direction, organisms):
+    def act(
+        self,
+        direction: np.ndarray[tuple[int], np.dtype[np.float64]],
+        organisms: list[Organism],
+    ) -> None:
         self.x += direction[0] * self.speed
         self.y += direction[1] * self.speed
 
@@ -70,7 +80,7 @@ class Predator:
         if self.energy <= 0:
             self.alive = False
 
-    def step(self, organisms):
+    def step(self, organisms: list[Organism]) -> None:
         visible = self.perceive(organisms)
         direction = self.decide(visible)
         self.act(direction, organisms)
