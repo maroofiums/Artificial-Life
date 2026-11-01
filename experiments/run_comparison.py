@@ -76,7 +76,7 @@ if results:
         ax.tick_params(axis="x", rotation=15)
         ax.grid(axis="y", alpha=0.3)
 
-    plt.suptitle("Artificial Life — Experiment Comparison")
+    plt.suptitle("Artificial Life - Experiment Comparison")
     plt.tight_layout()
     plt.show()
 

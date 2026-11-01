@@ -1,4 +1,4 @@
-# Artificial Life — Digital Evolution Laboratory
+# Artificial Life - Digital Evolution Laboratory
 
 A Python-based artificial-life simulation exploring how organisms survive, consume resources, reproduce, mutate, and interact with predators in a dynamic environment.
 
@@ -200,7 +200,7 @@ This project provides an experimental framework for investigating that question 
 
 ---
 
-**Project:** Artificial-Life — Digital Evolution Laboratory  
+**Project:** Artificial-Life - Digital Evolution Laboratory  
 **Language:** Python  
 **Core areas:** Artificial Life, Neural Networks, Evolutionary Computation, Multi-Agent Simulation  
-**Status:** Version 1 — Experimental prototype
+**Status:** Version 1 - Experimental prototype
