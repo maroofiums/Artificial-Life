@@ -56,6 +56,7 @@ class Predator:
         self,
         direction: np.ndarray[tuple[int], np.dtype[np.float64]],
         organisms: list[Organism],
+        environment,
     ) -> None:
         self.x += direction[0] * self.speed
         self.y += direction[1] * self.speed
@@ -74,13 +75,19 @@ class Predator:
 
             if distance < 2:
                 prey.alive = False
+                environment.add_resource(
+                    int(prey.x),
+                    int(prey.y),
+                    "meat",
+                    1.0
+                )
                 self.energy += 40
                 break
 
         if self.energy <= 0:
             self.alive = False
 
-    def step(self, organisms: list[Organism]) -> None:
+    def step(self, organisms: list[Organism], environment) -> None:
         visible = self.perceive(organisms)
         direction = self.decide(visible)
-        self.act(direction, organisms)
+        self.act(direction, organisms, environment)
