@@ -41,10 +41,10 @@ def run_experiment(mutation_rate, seed=42, steps=500):
 
     for step in range(steps):
         env.regenerate_food()
-
+        
         for organism in prey:
             if organism.alive:
-                organism.step(env)
+                organism.step(env, prey)
 
         newborns = []
 

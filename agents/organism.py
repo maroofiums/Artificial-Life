@@ -50,6 +50,40 @@ class Organism:
 
         return self.brain.forward(observation, self.energy)
 
+    def hunt(
+        self,
+        organisms: list[Organism],
+        environment: Environment,
+    ) -> None:
+
+        if self.species.attack_strength <= 0:
+            return
+
+        for prey in organisms:
+            if prey is self or not prey.alive:
+                continue
+
+            if prey.species.species_id == self.species.species_id:
+                continue
+
+            distance = np.hypot(
+                prey.x - self.x,
+                prey.y - self.y
+            )
+
+            if distance <= 2:
+                prey.alive = False
+
+                environment.add_resource(
+                    int(prey.x),
+                    int(prey.y),
+                    "meat",
+                    1.0
+                )
+
+                self.energy += self.species.attack_strength
+                break
+
     def act(
         self,
         direction: np.ndarray[tuple[int], np.dtype[np.float64]],
@@ -90,10 +124,18 @@ class Organism:
                 1.0
     )
 
-    def step(self, environment: Environment) -> None:
+    def step(
+        self,
+        environment: Environment,
+        organisms: list[Organism] | None = None,
+    ) -> None:
+
         observation = self.perceive(environment)
         direction = self.decide(observation)
         self.act(direction, environment)
+
+        if organisms is not None:
+            self.hunt(organisms, environment)
 
     def reproduce(self, mutation_rate=0.1):
         if self.energy < self.species.reproduction_energy or not self.alive:
