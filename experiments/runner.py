@@ -81,5 +81,11 @@ def run_experiment(mutation_rate, seed=42, steps=500):
 
         tracker.record(prey, step + 1)
 
-    return tracker.history        
+    tracker.final_resources = {
+        "plant": float(env.food.mean()),
+        "meat": float(env.meat.mean()),
+        "remains": float(env.remains.mean()),
+    }
+
+    return tracker.history, tracker.final_resources
         
