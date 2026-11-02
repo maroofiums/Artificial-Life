@@ -58,9 +58,13 @@ def run_experiment(mutation_rate, seed=42, steps=500):
 
         prey.extend(newborns)
 
-        for org in prey:
-            if not org.alive or org.energy <= 0:
-                deaths[org.species.species_id] += 1
+        dead = [
+            org for org in prey
+            if not org.alive or org.energy <= 0
+        ]
+
+        for org in dead:
+            deaths[org.species.species_id] += 1
 
         prey = [
             org for org in prey
@@ -72,21 +76,26 @@ def run_experiment(mutation_rate, seed=42, steps=500):
             reverse=True
         )
 
+        removed = prey[max_population:]
+
+        for org in removed:
+            deaths[org.species.species_id] += 1
+
         prey = prey[:max_population]
 
         for predator in predators:
             if predator.alive:
+                previously_alive = {
+                    id(org) for org in prey if org.alive
+                }
+
                 predator.step(prey, env)
 
-        predators = [p for p in predators if p.alive]
+                for org in prey:
+                    if id(org) in previously_alive and not org.alive:
+                        deaths[org.species.species_id] += 1
 
-        species_counts = {
-            species_id: sum(
-                1 for org in prey
-                if org.species.species_id == species_id
-            )
-            for species_id in SPECIES_REGISTRY
-        }
+        predators = [p for p in predators if p.alive]
 
         tracker.record(prey, step + 1)
 
