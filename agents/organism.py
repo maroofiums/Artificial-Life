@@ -2,21 +2,35 @@ import numpy as np
 
 from core.environment import Environment
 from agents.brain import NeuralBrain
+from agents.species import SPECIES_REGISTRY, Species, get_species
+
+
 class Organism:
-    def __init__(self, x: int, y: int, brain: NeuralBrain=None) -> None:
+    def __init__(
+        self,
+        x: int,
+        y: int,
+        brain: NeuralBrain | None = None,
+        species: Species | str | None = None,
+    ) -> None:
         self.x: float = float(x)
         self.y: float = float(y)
 
-        self.energy: float = 100.0
+        if isinstance(species, str):
+            self.species = get_species(species)
+        else:
+            self.species = species or SPECIES_REGISTRY["herbivore"]
+
+        self.energy: float = self.species.starting_energy
         self.age: int = 0
         self.alive: bool = True
 
-        self.vision_radius: int = 5
-        self.speed: float = 1.0
+        self.vision_radius: int = self.species.vision_radius
+        self.speed: float = self.species.speed
 
         self.brain: NeuralBrain | None = (
             brain if brain is not None else NeuralBrain()
-        )        
+        )
         self.generation: int = 1
 
     def perceive(
@@ -54,7 +68,7 @@ class Organism:
             int(self.y)
           )
 
-        self.energy += consumed * 50
+        self.energy += consumed * self.species.food_gain
         self.energy -= 0.5
 
         self.age += 1
@@ -67,11 +81,11 @@ class Organism:
         direction = self.decide(observation)
         self.act(direction, environment)
 
-    def reproduce(self, mutation_rate: float = 0.1) -> Organism | None:
-        if self.energy < 150:
+    def reproduce(self, mutation_rate=0.1):
+        if self.energy < self.species.reproduction_energy or not self.alive:
             return None
 
-        self.energy -= 60
+        self.energy -= self.species.reproduction_energy
 
         child_brain = self.brain.clone_mutated(
             mutation_rate=mutation_rate,
@@ -79,9 +93,10 @@ class Organism:
         )
 
         child = Organism(
-            x = self.x,
-            y = self.y,
-            brain = child_brain
+            self.x,
+            self.y,
+            brain=child_brain,
+            species=self.species
         )
 
         child.energy = 60

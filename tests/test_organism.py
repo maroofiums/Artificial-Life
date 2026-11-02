@@ -1,6 +1,7 @@
 import numpy as np
 
 from agents.organism import Organism
+from agents.species import SPECIES_REGISTRY
 from core.environment import Environment
 
 
@@ -10,6 +11,27 @@ def test_organism_initialization():
     assert organism.alive is True
     assert organism.energy > 0
     assert organism.age == 0
+
+
+def test_organism_initialization_with_species():
+    carnivore = SPECIES_REGISTRY["carnivore"]
+
+    organism = Organism(10, 20, species=carnivore)
+    organism_from_id = Organism(10, 20, species="carnivore")
+
+    assert organism.species is carnivore
+    assert organism.energy == carnivore.starting_energy
+    assert organism.vision_radius == carnivore.vision_radius
+    assert organism.speed == carnivore.speed
+    assert organism_from_id.species is carnivore
+
+    organism.energy = 200
+    child = organism.reproduce()
+
+    assert child is not None
+    assert child.species is carnivore
+    assert child.generation == organism.generation + 1
+    assert child.energy == 60
 
 
 def test_organism_reproduction():
