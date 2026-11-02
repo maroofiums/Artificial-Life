@@ -77,8 +77,15 @@ class Organism:
 
         self.age += 1
 
-        if self.energy <= 0:
+        if self.energy <= 0 and self.alive:
             self.alive = False
+
+            environment.add_resource(
+                int(self.x),
+                int(self.y),
+                "remains",
+                1.0
+    )
 
     def step(self, environment: Environment) -> None:
         observation = self.perceive(environment)

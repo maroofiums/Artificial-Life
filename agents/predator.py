@@ -56,7 +56,7 @@ class Predator:
         self,
         direction: np.ndarray[tuple[int], np.dtype[np.float64]],
         organisms: list[Organism],
-        environment,
+        environment: Environment,
     ) -> None:
         self.x += direction[0] * self.speed
         self.y += direction[1] * self.speed

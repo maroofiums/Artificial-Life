@@ -4,6 +4,7 @@ from core.environment import Environment
 from agents.organism import Organism
 from agents.predator import Predator
 from experiments.evolution import EvaluationTrack
+from agents.species import SPECIES_REGISTRY
 
 
 def run_experiment(mutation_rate, seed=42, steps=500):
@@ -12,12 +13,15 @@ def run_experiment(mutation_rate, seed=42, steps=500):
 
     env = Environment()
 
+    species_types = list(SPECIES_REGISTRY.values())
+
     prey = [
         Organism(
             np.random.randint(0, 100),
-            np.random.randint(0, 100)
+            np.random.randint(0, 100),
+            species=species_types[i % len(species_types)]
         )
-        for _ in range(20)
+        for i in range(20)
     ]
 
     predators = [
@@ -63,9 +67,17 @@ def run_experiment(mutation_rate, seed=42, steps=500):
 
         for predator in predators:
             if predator.alive:
-                predator.step(prey)
+                predator.step(prey, env)
 
         predators = [p for p in predators if p.alive]
+
+        species_counts = {
+            species_id: sum(
+                1 for org in prey
+                if org.species.species_id == species_id
+            )
+            for species_id in SPECIES_REGISTRY
+        }
 
         tracker.record(prey, step + 1)
 
