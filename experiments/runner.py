@@ -102,7 +102,7 @@ def run_experiment(mutation_rate, seed=42, steps=500):
         
         predators = [p for p in predators if p.alive]
 
-        tracker.record(prey, step + 1)
+        tracker.record(prey, step + 1, env)
 
     tracker.final_resources = {
         "plant": float(env.food.mean()),
