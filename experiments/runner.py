@@ -85,16 +85,21 @@ def run_experiment(mutation_rate, seed=42, steps=500):
 
         for predator in predators:
             if predator.alive:
-                previously_alive = {
-                    id(org) for org in prey if org.alive
-                }
-
                 predator.step(prey, env)
 
-                for org in prey:
-                    if id(org) in previously_alive and not org.alive:
-                        deaths[org.species.species_id] += 1
+        predator_kills = [
+            org for org in prey
+            if not org.alive or org.energy <= 0
+        ]
 
+        for org in predator_kills:
+            deaths[org.species.species_id] += 1
+
+        prey = [
+            org for org in prey
+            if org.alive and org.energy > 0
+        ]
+        
         predators = [p for p in predators if p.alive]
 
         tracker.record(prey, step + 1)
