@@ -59,6 +59,24 @@ def test_organism_movement_uses_integer_coordinates_and_clamps_to_bounds():
     assert isinstance(organism.y, int)
 
 
+def test_organism_tracks_consumption_by_resource():
+    organism = Organism(5, 5, species="omnivore")
+    environment = Environment(width=10, height=10)
+    environment.food[5, 5] = 0.5
+    environment.meat[5, 5] = 0.4
+    environment.remains[5, 5] = 0.3
+
+    organism.act(np.array([0.0, 0.0]), environment)
+
+    assert organism.last_food_consumed == 0.4
+    assert organism.last_food_by_resource == {
+        "plant": 0.2,
+        "meat": 0.2,
+        "remains": 0.0,
+    }
+    assert organism.food_consumed == 0.4
+
+
 def test_organism_dies_when_energy_depleted():
     organism = Organism(10, 20)
     organism.energy = 0.5

@@ -101,7 +101,42 @@ def run_experiment(mutation_rate, seed=42, steps=500):
         ]
         
         predators = [p for p in predators if p.alive]
+        if (step + 1) % 100 == 0:
+            print(f"\nStep: {step + 1}")
 
+            for species_id in SPECIES_REGISTRY:
+                members = [
+                    org for org in prey
+                    if org.species.species_id == species_id
+                ]
+
+                avg_energy = (
+                    np.mean([org.energy for org in members])
+                    if members else 0
+                )
+
+                avg_food = (
+                    np.mean([org.last_food_consumed for org in members])
+                    if members else 0
+                )
+
+                avg_resources = {
+                    resource: np.mean([
+                        org.last_food_by_resource[resource]
+                        for org in members
+                    ]) if members else 0.0
+                    for resource in ("plant", "meat", "remains")
+                }
+
+                print(
+                    f"{species_id}: "
+                    f"Count={len(members)}, "
+                    f"Energy={avg_energy:.2f}, "
+                    f"Food={avg_food:.4f}, "
+                    f"Plant={avg_resources['plant']:.4f}, "
+                    f"Meat={avg_resources['meat']:.4f}, "
+                    f"Remains={avg_resources['remains']:.4f}"
+                )
         tracker.record(prey, step + 1, env)
 
     tracker.final_resources = {

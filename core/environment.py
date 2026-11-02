@@ -18,7 +18,9 @@ class Environment:
         self.remains = np.zeros((height, width), dtype=np.float64)
 
     def regenerate_food(self) -> None:
-        growth = np.random.uniform(0, 0.003, self.food.shape)
+        growth = np.random.uniform(
+            0, 0.03, self.food.shape
+        )
 
         self.food = np.clip(
             self.food + growth, 0, 1
@@ -66,3 +68,41 @@ class Environment:
         grid[y, x] -= consumed
 
         return consumed
+
+    def observe_resources(
+        self,
+        x: int,
+        y: int,
+        radius: int,
+        diet: tuple,
+    ) -> np.ndarray:
+
+        x_min = max(0, x - radius)
+        x_max = min(self.width, x + radius + 1)
+        y_min = max(0, y - radius)
+        y_max = min(self.height, y + radius + 1)
+
+        shape = (
+            y_max - y_min,
+            x_max - x_min
+        )
+
+        resource_maps = []
+
+        for resource in ("plant", "meat", "remains"):
+            if resource in diet:
+                grid = (
+                    self.food
+                    if resource == "plant"
+                    else getattr(self, resource)
+                )
+
+                resource_maps.append(
+                    grid[y_min:y_max, x_min:x_max]
+                )
+            else:
+                resource_maps.append(
+                    np.zeros(shape, dtype=np.float64)
+                )
+
+        return np.stack(resource_maps, axis=0)

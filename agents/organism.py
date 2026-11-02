@@ -34,14 +34,19 @@ class Organism:
         self.generation: int = 1
 
         self.food_consumed = 0
+        self.last_food_consumed = 0.0
 
-    def perceive(
-        self, environment: Environment
-    ) -> np.ndarray[tuple[int, int], np.dtype[np.float64]]:
-        return environment.observe(
+        self.last_food_by_resource = {
+            "plant": 0.0,
+            "meat": 0.0,
+            "remains": 0.0,
+        }
+    def perceive(self, environment: Environment) -> np.ndarray:
+        return environment.observe_resources(
             int(self.x),
             int(self.y),
-            self.vision_radius
+            self.vision_radius,
+            self.species.diet,
         )
 
     def decide(
@@ -95,19 +100,21 @@ class Organism:
         self.x = max(0, min(self.x, 99))
         self.y = max(0, min(self.y, 99))
 
-        consumed = 0.0
+        resource_consumed = {
+            "plant": 0.0,
+            "meat": 0.0,
+            "remains": 0.0,
+        }
 
         for resource in self.species.diet:
-            if resource == "plant":
-                consumed += environment.consume_resource(
-                    int(self.x), int(self.y), "plant"
-                )
+            resource_consumed[resource] += environment.consume_resource(
+                int(self.x), int(self.y), resource
+            )
 
-            elif resource in ("meat", "remains"):
-                consumed += environment.consume_resource(
-                    int(self.x), int(self.y), resource
-                )
+        consumed = sum(resource_consumed.values())
 
+        self.last_food_consumed = consumed
+        self.last_food_by_resource = resource_consumed
         self.food_consumed += consumed
         self.energy += consumed * self.species.food_gain
         self.energy -= 0.5
