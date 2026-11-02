@@ -53,20 +53,24 @@ class Organism:
         direction: np.ndarray[tuple[int], np.dtype[np.float64]],
         environment: Environment,
     ) -> None:
-        self.x = np.clip(
-            self.x + direction[0] * self.speed,
-            0, environment.width - 1
-        )
+        self.x = int(self.x + direction[0] * self.speed)
+        self.y = int(self.y + direction[1] * self.speed)
 
-        self.y = np.clip(
-            self.y + direction[1] * self.speed,
-            0, environment.height - 1
-        )
+        self.x = max(0, min(self.x, 99))
+        self.y = max(0, min(self.y, 99))
 
-        consumed = environment.consume_food(
-            int(self.x),
-            int(self.y)
-          )
+        consumed = 0.0
+
+        for resource in self.species.diet:
+            if resource == "plant":
+                consumed += environment.consume_resource(
+                    int(self.x), int(self.y), "plant"
+                )
+
+            elif resource in ("meat", "remains"):
+                consumed += environment.consume_resource(
+                    int(self.x), int(self.y), resource
+                )
 
         self.energy += consumed * self.species.food_gain
         self.energy -= 0.5

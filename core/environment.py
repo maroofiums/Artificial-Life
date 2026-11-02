@@ -14,6 +14,9 @@ class Environment:
 
         self.food /= self.food.max()
 
+        self.meat = np.zeros((height, width), dtype=np.float64)
+        self.remains = np.zeros((height, width), dtype=np.float64)
+
     def regenerate_food(self) -> None:
         growth = np.random.uniform(
             0, 0.03, self.food.shape
@@ -40,5 +43,28 @@ class Environment:
         consumed = min(available, amount)
 
         self.food[y, x] -= consumed
+
+        return consumed
+
+    def add_resource(
+        self, x: int, y: int, resource: str, amount: float
+    ) -> None:
+        if resource not in ("meat", "remains"):
+            raise ValueError(f"Unknown resource: {resource}")
+
+        grid = getattr(self, resource)
+        grid[y, x] = min(1.0, grid[y, x] + amount)
+
+
+    def consume_resource(
+        self, x: int, y: int, resource: str, amount: float = 0.2
+    ) -> float:
+        if resource not in ("plant", "meat", "remains"):
+            raise ValueError(f"Unknown resource: {resource}")
+
+        grid = self.food if resource == "plant" else getattr(self, resource)
+
+        consumed = min(grid[y, x], amount)
+        grid[y, x] -= consumed
 
         return consumed

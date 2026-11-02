@@ -46,6 +46,19 @@ def test_organism_reproduction():
     assert child.energy == 60
 
 
+def test_organism_movement_uses_integer_coordinates_and_clamps_to_bounds():
+    organism = Organism(98, 1)
+    environment = Environment(width=100, height=100)
+    direction = np.array([1.0, -1.0])
+
+    organism.act(direction, environment)
+
+    assert organism.x == 99
+    assert organism.y == 0
+    assert isinstance(organism.x, int)
+    assert isinstance(organism.y, int)
+
+
 def test_organism_dies_when_energy_depleted():
     organism = Organism(10, 20)
     organism.energy = 0.5
