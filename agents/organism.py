@@ -33,6 +33,8 @@ class Organism:
         )
         self.generation: int = 1
 
+        self.food_consumed = 0
+
     def perceive(
         self, environment: Environment
     ) -> np.ndarray[tuple[int, int], np.dtype[np.float64]]:
@@ -72,6 +74,7 @@ class Organism:
                     int(self.x), int(self.y), resource
                 )
 
+        self.food_consumed += consumed
         self.energy += consumed * self.species.food_gain
         self.energy -= 0.5
 

@@ -33,6 +33,10 @@ def run_experiment(mutation_rate, seed=42, steps=500):
     ]
 
     tracker = EvaluationTrack()
+
+    births = {sid: 0 for sid in SPECIES_REGISTRY}
+    deaths = {sid: 0 for sid in SPECIES_REGISTRY}
+    
     max_population = 100
 
     for step in range(steps):
@@ -50,8 +54,13 @@ def run_experiment(mutation_rate, seed=42, steps=500):
 
                 if child is not None:
                     newborns.append(child)
+                    births[organism.species.species_id] += 1
 
         prey.extend(newborns)
+
+        for org in prey:
+            if not org.alive or org.energy <= 0:
+                deaths[org.species.species_id] += 1
 
         prey = [
             org for org in prey
@@ -87,5 +96,7 @@ def run_experiment(mutation_rate, seed=42, steps=500):
         "remains": float(env.remains.mean()),
     }
 
-    return tracker.history, tracker.final_resources
-        
+    tracker.births = births
+    tracker.deaths = deaths
+
+    return tracker.history, tracker.final_resources, tracker.births, tracker.deaths        
