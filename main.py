@@ -59,7 +59,7 @@ def main() -> None:
             key=lambda organism: organism.calculate_fitness(),
             reverse=True,
         )
-        # prey = prey[:MAX_POPULATION]
+        prey = prey[:MAX_POPULATION]
 
         for predator in predators:
             if predator.alive:
