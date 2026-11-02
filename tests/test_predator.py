@@ -2,6 +2,7 @@ import numpy as np
 
 from agents.predator import Predator
 from agents.organism import Organism
+from core.environment import Environment
 
 
 def test_predator_initialization():
@@ -24,8 +25,9 @@ def test_predator_detects_nearby_prey():
 def test_predator_hunts_prey():
     predator = Predator(10, 10)
     prey = Organism(11, 10)
+    environment = Environment(width=100, height=100)
 
-    predator.step([prey])
+    predator.step([prey], environment)
 
     assert prey.alive is False
     assert predator.energy > 120

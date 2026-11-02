@@ -50,3 +50,29 @@ class EvaluationTrack:
             return {}
 
         return self.history[-1]
+
+
+def extinction_report(history):
+    if not history:
+        return {}
+
+    species_ids = list(history[0]["species_counts"])
+    report = {}
+
+    for species in species_ids:
+        extinction_step = next(
+            (
+                record["step"]
+                for record in history
+                if record["species_counts"][species] == 0
+            ),
+            None,
+        )
+
+        report[species] = (
+            f"Extinct at step {extinction_step}"
+            if extinction_step is not None
+            else "Survived"
+        )
+
+    return report

@@ -18,9 +18,7 @@ class Environment:
         self.remains = np.zeros((height, width), dtype=np.float64)
 
     def regenerate_food(self) -> None:
-        growth = np.random.uniform(
-            0, 0.03, self.food.shape
-        )
+        growth = np.random.uniform(0, 0.003, self.food.shape)
 
         self.food = np.clip(
             self.food + growth, 0, 1

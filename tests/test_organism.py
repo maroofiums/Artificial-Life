@@ -42,7 +42,7 @@ def test_organism_reproduction():
 
     assert child is not None
     assert child.generation == parent.generation + 1
-    assert parent.energy == 140
+    assert parent.energy == 200 - parent.species.reproduction_energy
     assert child.energy == 60
 
 

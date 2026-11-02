@@ -56,3 +56,25 @@ def plot_evolution(history):
     fig.suptitle("Artificial Life — Ecosystem Dashboard")
     plt.tight_layout()
     plt.show()
+
+    # 5. Resource availability
+    resources = {
+        resource: [
+            x["resources"][resource]
+            for x in history
+        ]
+        for resource in ("plant", "meat", "remains")
+    }
+
+    plt.figure(figsize=(12, 5))
+
+    for resource, values in resources.items():
+        plt.plot(steps, values, label=resource.capitalize())
+
+    plt.title("Ecosystem Resource Availability")
+    plt.xlabel("Simulation Steps")
+    plt.ylabel("Average Resource Density")
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
