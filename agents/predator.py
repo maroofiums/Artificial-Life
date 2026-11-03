@@ -2,6 +2,7 @@
 import numpy as np
 
 from agents.organism import Organism
+from core.environment import Environment
 
 
 class Predator:
@@ -87,7 +88,9 @@ class Predator:
         if self.energy <= 0:
             self.alive = False
 
-    def step(self, organisms: list[Organism], environment) -> None:
+    def step(
+        self, organisms: list[Organism], environment: Environment
+    ) -> None:
         visible = self.perceive(organisms)
         direction = self.decide(visible)
         self.act(direction, organisms, environment)

@@ -65,6 +65,7 @@ def test_organism_tracks_consumption_by_resource():
     environment.food[5, 5] = 0.5
     environment.meat[5, 5] = 0.4
     environment.remains[5, 5] = 0.3
+    initial_energy = organism.energy
 
     organism.act(np.array([0.0, 0.0]), environment)
 
@@ -75,6 +76,13 @@ def test_organism_tracks_consumption_by_resource():
         "remains": 0.0,
     }
     assert organism.food_consumed == 0.4
+    assert np.isclose(
+        organism.energy,
+        initial_energy + 0.4 * organism.species.food_gain - 0.5,
+    )
+    assert np.isclose(environment.food[5, 5], 0.3)
+    assert np.isclose(environment.meat[5, 5], 0.2)
+    assert np.isclose(environment.remains[5, 5], 0.3)
 
 
 def test_organism_dies_when_energy_depleted():
@@ -87,3 +95,102 @@ def test_organism_dies_when_energy_depleted():
     organism.step(env)
 
     assert organism.alive is False
+
+
+def test_perception_masks_resources_outside_species_diet():
+    organism = Organism(5, 5, species="herbivore")
+    environment = Environment(width=10, height=10)
+    environment.food[5, 5] = 0.8
+    environment.meat[5, 5] = 0.6
+    environment.remains[5, 5] = 0.4
+
+    observation = organism.perceive(environment)
+
+    assert observation.shape == (3, 10, 10)
+    assert observation[0, 5, 5] == 0.8
+    assert observation[1, 5, 5] == 0
+    assert observation[2, 5, 5] == 0
+
+
+def test_carnivore_hunts_other_species_and_tracks_meat():
+    carnivore = Organism(5, 5, species="carnivore")
+    prey = Organism(6, 5, species="herbivore")
+    environment = Environment(width=10, height=10)
+    initial_energy = carnivore.energy
+
+    carnivore.hunt([carnivore, prey], environment)
+
+    assert prey.alive is False
+    assert environment.meat[5, 6] == 0.8
+    assert carnivore.last_food_by_resource["meat"] == 0.2
+    assert carnivore.last_food_consumed == 0.2
+    assert carnivore.food_consumed == 0.2
+    assert carnivore.energy == initial_energy + 0.2 * carnivore.species.food_gain + 10
+
+
+def test_hunt_skips_same_species_and_non_attacking_species():
+    herbivore = Organism(5, 5, species="herbivore")
+    same_species = Organism(6, 5, species="herbivore")
+    environment = Environment(width=10, height=10)
+    initial_energy = herbivore.energy
+
+    herbivore.hunt([same_species], environment)
+
+    assert same_species.alive is True
+    assert herbivore.energy == initial_energy
+
+
+def test_step_runs_movement_and_hunting():
+    hunter = Organism(5, 5, species="carnivore")
+    prey = Organism(6, 5, species="herbivore")
+    environment = Environment(width=10, height=10)
+    hunter.brain.forward = lambda observation, energy: (
+        np.zeros(2) + observation.sum() * 0 + energy * 0
+    )
+
+    hunter.step(environment, [hunter, prey])
+
+    assert hunter.age == 1
+    assert prey.alive is False
+    assert environment.meat[5, 6] > 0
+
+
+def test_scavenger_consumes_meat_and_remains_separately():
+    scavenger = Organism(5, 5, species="scavenger")
+    environment = Environment(width=10, height=10)
+    environment.meat[5, 5] = 0.1
+    environment.remains[5, 5] = 0.5
+
+    scavenger.act(np.zeros(2), environment)
+
+    assert scavenger.last_food_by_resource == {
+        "plant": 0.0,
+        "meat": 0.1,
+        "remains": 0.2,
+    }
+    assert np.isclose(scavenger.last_food_consumed, 0.3)
+    assert np.isclose(environment.meat[5, 5], 0)
+    assert np.isclose(environment.remains[5, 5], 0.3)
+
+
+def test_dead_organism_is_not_reproduced():
+    organism = Organism(5, 5)
+    organism.energy = 200
+    organism.alive = False
+
+    assert organism.reproduce() is None
+
+
+def test_organism_below_species_reproduction_threshold_is_not_reproduced():
+    organism = Organism(5, 5, species="carnivore")
+    organism.energy = organism.species.reproduction_energy - 0.1
+
+    assert organism.reproduce() is None
+
+
+def test_fitness_is_age_plus_energy():
+    organism = Organism(5, 5)
+    organism.age = 12
+    organism.energy = 34.5
+
+    assert organism.calculate_fitness() == 46.5

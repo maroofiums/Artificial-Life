@@ -63,7 +63,7 @@ def main() -> None:
 
         for predator in predators:
             if predator.alive:
-                predator.step(prey)
+                predator.step(prey, environment)
 
         predators = [predator for predator in predators if predator.alive]
         prey = [
@@ -71,7 +71,7 @@ def main() -> None:
             if organism.alive and organism.energy > 0
         ]
 
-        tracker.record(prey, step + 1)
+        tracker.record(prey, step + 1, environment)
 
         if (step + 1) % 50 == 0:
             max_generation = max(
