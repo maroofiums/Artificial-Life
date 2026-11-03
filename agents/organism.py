@@ -61,7 +61,7 @@ class Organism:
         environment: Environment,
     ) -> None:
 
-        if self.species.attack_strength <= 0:
+        if not self.alive or self.species.attack_strength <= 0:
             return
 
         for prey in organisms:
@@ -79,16 +79,32 @@ class Organism:
             if distance <= 2:
                 prey.alive = False
 
+                prey_x = int(prey.x)
+                prey_y = int(prey.y)
+
                 environment.add_resource(
-                    int(prey.x),
-                    int(prey.y),
+                    prey_x,
+                    prey_y,
                     "meat",
                     1.0
                 )
 
-                self.energy += self.species.attack_strength
-                break
+                consumed = environment.consume_resource(
+                    prey_x,
+                    prey_y,
+                    "meat"
+                )
 
+                self.energy += (
+                    consumed * self.species.food_gain
+                    + self.species.attack_strength
+                )
+
+                self.food_consumed += consumed
+                self.last_food_consumed += consumed
+                self.last_food_by_resource["meat"] += consumed
+
+                break
     def act(
         self,
         direction: np.ndarray[tuple[int], np.dtype[np.float64]],

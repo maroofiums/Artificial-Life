@@ -26,6 +26,10 @@ class Environment:
             self.food + growth, 0, 1
         )
 
+    def decay_resources(self) -> None:
+        self.meat *= 0.995
+        self.remains *= 0.995
+
     def observe(
         self, x: int, y: int, radius: int = 5
     ) -> np.ndarray[tuple[int, int], np.dtype[np.float64]]:

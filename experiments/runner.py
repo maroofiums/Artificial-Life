@@ -41,6 +41,7 @@ def run_experiment(mutation_rate, seed=42, steps=500):
 
     for step in range(steps):
         env.regenerate_food()
+        env.decay_resources()
         
         for organism in prey:
             if organism.alive:
